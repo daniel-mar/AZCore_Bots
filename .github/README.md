@@ -1,3 +1,43 @@
+# A stream-lined way to get started on a bot populated WOTLK server.
+
+If interested in using with these changes, git clone this repository. (It has necessary module already cloned within it as well).
+- Afterwards run 
+`- docker compose up -d --build --pull always`
+
+Wait up to 15 - 30 minutes on first build to complete and show logs. You will see bots being populated and maybe some in-game scripting errors after completely built.
+
+- Open a new terminal and run
+`docker attach ac-worldserver`
+
+Use ctrl + p or ctrl + q, as to not stop the docker server and access console. (AC is AzerothCore CLI)
+
+- Create your account(s):
+AC `account create <user> <pass>`
+
+- Set account level:
+AC `account set gmlevel admin 3 -1`
+
+After Docker succesfully built and you can log into your DB locally: 127.0.0.1
+Execute query to update the realmlist IP
+- `USE acore_auth;
+SELECT * FROM realmlist;
+UPDATE realmlist SET address='$SERVER PUBLIC IP ADDRESS';`
+
+If uncertain about the env variable, hard-code it for offline use:
+- `USE acore_auth;
+SELECT * FROM realmlist;
+UPDATE realmlist SET address='127.0.0.1';`
+
+By this time, you should have a client for testing of offline server.
+
+Within client folder's Wow/Data folder. 
+- Update the *realmlist.txt* file with
+`set realmlist 127.0.0.1`
+
+You should now be able to open the WoW client, login with created accounts, view and select your realm and create a character and play.
+
+You can even introduce addons available during WOTLK and dungeon/raid with these bots.
+
 # ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
