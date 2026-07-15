@@ -37,7 +37,15 @@ fi
 # -r == recursive
 # -n == no clobber (don't overwrite)
 # -v == be verbose
-cp -rnv /azerothcore/env/ref/etc/* "$CONF_DIR"
+cp -rnv /azerothcore/env/ref/etc/* "$CONF_DIR" 2>/dev/null || true
+
+# Ensure modules directory exists
+mkdir -p "$CONF_DIR/modules"
+
+# Copy module configs from ref if they exist
+if [[ -d /azerothcore/env/ref/etc/modules ]]; then
+    cp -rnv /azerothcore/env/ref/etc/modules/* "$CONF_DIR/modules" 2>/dev/null || true
+fi
 
 CONF="$CONF_DIR/$ACORE_COMPONENT.conf"
 CONF_DIST="$CONF_DIR/$ACORE_COMPONENT.conf.dist"

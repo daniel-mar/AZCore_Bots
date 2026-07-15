@@ -81,11 +81,6 @@ ARG CACHEBUST=1
 WORKDIR /azerothcore/build
 
 RUN --mount=type=cache,target=/ccache,sharing=locked \
-    # This may seem silly (and it is), but AzerothCore wants the git repo at
-    # build time. The git repo is _huge_ and it's not something that really
-    # makes sense to mount into the container, but this way we can let the build
-    # have the information it needs without including the hundreds of megabytes
-    # of git repo into the container.
     --mount=type=bind,target=/azerothcore/.git,source=.git \
     git config --global --add safe.directory /azerothcore \
     && cmake /azerothcore \
@@ -101,6 +96,7 @@ RUN --mount=type=cache,target=/ccache,sharing=locked \
        -DCMAKE_CXX_COMPILER_LAUNCHER="ccache"          \
        -DCMAKE_C_COMPILER_LAUNCHER="ccache"            \
        -DBoost_USE_STATIC_LIBS="ON"                    \
+       $CMAKE_EXTRA_OPTIONS                            \
     && cmake --build . --config "$CTYPE" -j $(($(nproc) + 1)) \
     && cmake --install . --config "$CTYPE"
 
@@ -154,16 +150,13 @@ FROM runtime AS authserver
 LABEL description="AzerothCore Auth Server"
 
 ENV ACORE_COMPONENT=authserver
-# Don't run database migrations. We can leave that up to the db-import container
 ENV AC_UPDATES_ENABLE_DATABASES=0
-# This disables user prompts. The console is still active, however
 ENV AC_DISABLE_INTERACTIVE=1
 ENV AC_CLOSE_IDLE_CONNECTIONS=0
 
 COPY --chown=$DOCKER_USER:$DOCKER_USER \
      --from=build \
      /azerothcore/env/dist/bin/authserver /azerothcore/env/dist/bin/authserver
-
 
 CMD ["authserver"]
 
@@ -176,9 +169,7 @@ FROM runtime AS worldserver
 LABEL description="AzerothCore World Server"
 
 ENV ACORE_COMPONENT=worldserver
-# Don't run database migrations. We can leave that up to the db-import container
 ENV AC_UPDATES_ENABLE_DATABASES=0
-# This disables user prompts. The console is still active, however
 ENV AC_DISABLE_INTERACTIVE=1
 ENV AC_CLOSE_IDLE_CONNECTIONS=0
 
